@@ -1,0 +1,32 @@
+name: Update Futures CSV
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install yfinance pandas
+
+      - name: Run Script
+        run: python update_futures.py
+
+      - name: Commit Changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git add futures.csv
+          git commit -m 'Auto-update futures.csv [skip ci]' || echo "No changes to commit"
+          git push
